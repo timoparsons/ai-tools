@@ -1,0 +1,17 @@
+# Whitelist: ignore everything at the top level by default,
+# then allow only the folders that are original work.
+/*
+!/.gitignore
+!/config/
+!/mcp-servers/
+/mcp-servers/*
+!/mcp-servers/bifrost-admin/
+
+# Noise and secrets inside tracked folders
+.DS_Store
+.env
+*.env
+.venv/
+__pycache__/
+*.pyc
+backup-*/
