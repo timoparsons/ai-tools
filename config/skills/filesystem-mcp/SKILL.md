@@ -1,6 +1,6 @@
 ---
 name: filesystem-mcp
-description: Use when reading, searching, editing or writing files on the Mac Studio through the filesystem MCP server (allowed roots under /Users/tim/Documents/Coding and the ai_tools SSD volume).
+description: Use when reading, searching, editing or writing files on the Mac Studio through the filesystem MCP server (allowed roots under /Users/tim/Documents/Coding and the ai-tools SSD volume at /Volumes/SSD/ai-tools).
 ---
 
 # filesystem-mcp
@@ -9,11 +9,13 @@ Reach this server through bifrost-gateway (see local-environment): `listToolFile
 
 ## Environment
 
-- Allowed directories as of 2026-10-06: `/Users/tim/Documents/Coding` and `/Volumes/projects_SSD/ai_tools`. In July only the first was listed, so the config drifts. Call `list_allowed_directories()` when scope matters.
+- Allowed directories as of 2026-10-09: `/Users/tim/Documents/Coding` and `/Volumes/SSD/ai-tools`. The SSD folder was renamed from `ai_tools` to `ai-tools` on 2026-10-09 and the Bifrost client updated to match. Config drifts, so call `list_allowed_directories()` when scope matters.
 - Paths outside the allowed roots are refused cleanly with `Access denied - path outside allowed directories`. Just check the path.
-- Top-level dirs under Coding on 2026-07-05 (snapshot): `Apple Notes`, `ai-tools`, `ansible-macos-deploy`, `backup`, `homeassistant-dev`, `macos-scripts`, `proxmox-calliope`, `proxmox-halcyon`, `proxmox-scripts`, `resolve-scripts`, `swiftbar`.
-- Homelab-relevant: `proxmox-calliope/` (Ansible playbooks and per-LXC config snapshots in `ansible/`, `lxc-*/`, `vm-*/`, `proxmox-host/`) and `ai-tools/` (`agent-gateway`, `ai-models`, `arc-relay`, `configs`, `mcp-servers`, `skills`, `mcp.json`).
-- `ai-tools/skills/` holds packaged `.skill` files (zip archives) and, now, skill source folders.
+- Top-level dirs under Coding on 2026-07-05 (snapshot): `Apple Notes`, `ai-tools`, `ansible-macos-deploy`, `backup`, `homeassistant-dev`, `macos-scripts`, `proxmox-calliope`, `proxmox-halcyon`, `proxmox-scripts`, `resolve-scripts`, `swiftbar`. The old internal `ai-tools` copy is being retired in favour of the SSD copy.
+- Homelab-relevant: `proxmox-calliope/` (Ansible playbooks and per-LXC config snapshots in `ansible/`, `lxc-*/`, `vm-*/`, `proxmox-host/`).
+- `/Volumes/SSD/ai-tools/` layout: `config/` and `mcp-servers/bifrost-admin/` are the git repo (whitelist `.gitignore`, so new folders stay untracked until added). `apps/` (ComfyUI, open-webui) and `models/` are large and untracked. Other folders in `mcp-servers/` are untracked.
+- `config/skills/` holds the skill source folders, one `SKILL.md` each.
+- The SSD must be mounted. If it isn't, this server and bifrost_admin both fail.
 
 ## Quirks
 
@@ -21,7 +23,7 @@ Reach this server through bifrost-gateway (see local-environment): `listToolFile
 2. **`edit_file` with `dryRun=True` is reliable** (verified 2026-07-05: correct diff, zero changes). Always dry-run first, show the diff for anything non-trivial, then apply.
 3. **Prefer `read_text_file`.** `read_file` is a legacy alias; `read_text_file` supports `head` and `tail`.
 4. **`write_file` overwrites completely.** No append, no merge, no dry-run, no undo. For an existing file, read it first, build the full new content, and confirm with the user before overwriting anything that is not scratch or output.
-5. **Text only.** The read and write tools cannot handle binaries such as the `.skill` zips. Edit the source folders as text; packaging happens elsewhere.
+5. **Text only.** The read and write tools cannot handle binaries such as `.skill` zips. Edit the source folders as text; packaging happens elsewhere.
 
 ## Calling convention
 
@@ -42,7 +44,7 @@ tree = filesystem.directory_tree(path="/Users/tim/Documents/Coding/proxmox-calli
 Find a file anywhere under a folder:
 
 ```python
-result = filesystem.search_files(path="/Users/tim/Documents/Coding/ai-tools", pattern="**/*.skill", excludePatterns=[".git"])
+result = filesystem.search_files(path="/Volumes/SSD/ai-tools", pattern="**/*.skill", excludePatterns=[".git"])
 ```
 
 Read several files at once instead of looping:

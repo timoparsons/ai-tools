@@ -42,7 +42,7 @@ If Ansible is requested and no `ansible` server is listed, say so and suggest re
 ## Quirks for servers without a skill yet
 
 - `comfyuimcp`: each tool takes an `action` argument and does several things. `comfyuimcp.list_tools` returns a catalog of capabilities.
-- `bifrost_admin`: every write is a dry run until called again with `confirm="true"`; show the dry run to the user, then confirm. Header values must be `env.VAR_NAME` references, never literal secrets (refused); if a secret isn't in Bifrost's environment, create the client without it and ask the user to add the header in the Bifrost UI. Creating stdio clients is off unless `BIFROST_ALLOW_STDIO_CREATE=1`. It refuses to delete or disable itself. Refusals come back as errors and abort the script, so run each write in its own `executeToolCode` call. Reconnecting `bifrost_admin` itself times out (it restarts mid-call); check its `.pyi` afterwards. Code and README: `ai-tools/mcp-servers/bifrost-admin/`.
+- `bifrost_admin`: every write is a dry run until called again with `confirm="true"`; show the dry run to the user, then confirm. Header values must be `env.VAR_NAME` references, never literal secrets (refused); if a secret isn't in Bifrost's environment, create the client without it and ask the user to add the header in the Bifrost UI. Creating stdio clients is off unless `BIFROST_ALLOW_STDIO_CREATE=1`. It refuses to delete or disable itself. Refusals come back as errors and abort the script, so run each write in its own `executeToolCode` call. Reconnecting `bifrost_admin` itself times out (it restarts mid-call); check its `.pyi` afterwards. Code and README: `/Volumes/SSD/ai-tools/mcp-servers/bifrost-admin/` (venv `.venv/bin/python`, launched by Bifrost). If the SSD is not mounted, `bifrost_admin` is down. Bifrost was `v2.2.6` on 2026-10-09.
 - `unifi`: read-only by design. It logs in as a View Only local account and runs with write policies off, and Bifrost allows only `get_`/`list_` tools plus `lookup_by_ip`, `recent_events` and `tool_index`. `unifi_execute` and `unifi_batch` are deliberately excluded because they would bypass the allowlist. If a change is requested, say it is out of scope rather than looking for a workaround. Container `unifi-network-mcp` on management (10.1.1.30:8096), env at `/opt/unifi-mcp/unifi.env`; it runs `UNIFI_NETWORK_MCP_CONTENT_MODE=compat` because Bifrost code mode drops `structuredContent`. Quote env-file values that contain a dollar sign, or Compose substitutes it.
 - `synology_calliope`: read-only by design. Bifrost allows 52 of 71 tools: the `get_`/`list_` tools plus `search_files` and `check_dsm_update`. File writes, shared-folder changes, downloads, task runs, container/VM/package state, DSM update install, reboot and shutdown are deliberately excluded, and the server also runs with `SYNOLOGY_ENABLE_POWER_CONTROL=false`. If a change is requested, say it is out of scope rather than looking for a workaround. Logs in to DSM at https://10.1.1.10:5501 as `local-api`. Container `synology-mcp-calliope` (rafalr100/synology-mcp, built locally from `/opt/synology-mcp`) on management (10.1.1.30:8095), env at `/opt/synology-mcp/calliope.env`.
 - `davinci_resolve`: prefer `run_script` over `run_script_unsafe`. Check `get_resolve_status` first and use `launch_resolve` only if the user wants Resolve started.
@@ -73,14 +73,14 @@ Re-fetch the live note instead of trusting memory or any summary here. Use obsid
 
 ## Changing skills
 
-Claude loads the user's saved account skills. The files in `/Users/tim/Documents/Coding/ai-tools/skills/<name>/SKILL.md` are the source copies; editing them alone changes nothing Claude sees.
+Claude loads the user's saved account skills. The files in `/Volumes/SSD/ai-tools/config/skills/<name>/SKILL.md` are the source copies (git repo `ai-tools`); editing them alone changes nothing Claude sees.
 
 1. Read the current saved skill (the synced copy in the session's skills folder) and the source file, whole.
 2. Edit the source file with filesystem `edit_file`, dry run first.
 3. Propose the complete updated SKILL.md as a review card (`propose_skills`, kind `improvement`). A card holds up to three skills; send another card for the rest.
 4. The user saves it from the card in the app. Until then the old version stays live.
 
-Keep the source file and the saved skill identical. `Library/External Docs/ai-tools/skills/` in the vault is a read-only mirror of the repo that updates when the repo syncs; never edit it. When a vault note that skills point to moves or is renamed, search the source skills for the old path and send cards for every skill that changes.
+Keep the source file and the saved skill identical. `Library/External Docs/ai-tools/skills/` in the vault is a read-only mirror, and it may be stale since the repo was rebuilt on 2026-10-09; never edit it. When a vault note that skills point to moves or is renamed, search the source skills for the old path and send cards for every skill that changes.
 
 ## Working conventions
 

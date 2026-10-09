@@ -27,15 +27,17 @@ Write (every one is a dry run unless `confirm=true`):
 - Credentials are read from the environment only: `BIFROST_API_KEY` (Bearer), or `BIFROST_ADMIN_USER` + `BIFROST_ADMIN_PASSWORD` (Basic), optional `BIFROST_SETUP_TOKEN`.
 
 ## Install (on the Mac Studio)
-    cd ~/Documents/Coding/ai-tools/mcp-servers/bifrost-admin
+Runs from the SSD copy. The SSD must be mounted. `.venv` is local and not tracked in git, so rebuild it on each machine.
+    cd /Volumes/SSD/ai-tools/mcp-servers/bifrost-admin
     python3 -m venv .venv
     .venv/bin/pip install -r requirements.txt
     .venv/bin/python test_bifrost_admin.py
 
 ## Register in Bifrost
-Add an MCP client: connection type stdio, command = absolute path to `.venv/bin/python`, args = absolute path to `server.py`, envs = the credential variable names. Leave "allow on all virtual keys" off. After changing the code, reconnect the client (or toggle it off and on) so Bifrost restarts the process.
+Add an MCP client: connection type stdio, command = `/Volumes/SSD/ai-tools/mcp-servers/bifrost-admin/.venv/bin/python`, args = `/Volumes/SSD/ai-tools/mcp-servers/bifrost-admin/server.py`, envs = the credential variable names (`BIFROST_ADMIN_USER`, `BIFROST_ADMIN_PASSWORD`). The values come from Bifrost's own process environment, not the client config. Leave "allow on all virtual keys" off. After changing the code, reconnect the client (or toggle it off and on) so Bifrost restarts the process.
 
 ## Status
+- 2026-10-09: moved to `/Volumes/SSD/ai-tools/mcp-servers/bifrost-admin/`, venv rebuilt on the SSD, client re-registered from there. `bifrost_status` healthy on Bifrost v2.2.6.
 - Read tools and reconnect: verified against live Bifrost v2.2.4.
 - Create/update/delete (added 2026-10-06): 15 unit tests against a fake Bifrost, plus a live round-trip on v2.2.4 (created an http client, disabled it with a partial PUT that kept its URL and settings, deleted it, confirmed gone). Not yet verified live: stdio creation, and whether a partial PUT keeps existing headers on a header-auth client. Previous version is in `backup-2026-10-06/`.
 - Bifrost code mode treats an `Error: ...` result as a failed call, so refusals abort the script. Run writes in their own executeToolCode call.
