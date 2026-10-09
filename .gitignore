@@ -2,6 +2,7 @@
 # then allow only the folders that are original work.
 /*
 !/.gitignore
+!/README.md
 !/config/
 !/mcp-servers/
 /mcp-servers/*
